@@ -1,0 +1,68 @@
+# This is an example Starter pipeline configuration
+# Use a skeleton to build, test and deploy using manual and parallel steps
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+
+pipelines:
+  branches:
+    master:
+      - step:
+          name: "Build"
+          image: drupal:9.1-php7.4-fpm-alpine
+          script:
+            - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+            - cd code
+            - composer install
+            - cd themes/custom/marko
+            - apk add --update nghttp2-dev nodejs npm
+            - npm ci
+            - npm run build
+            - cd ../../..
+            - apk --no-cache add zip
+            - zip -q -r release.zip ./*;
+            - pwd
+            - ls
+          artifacts:
+            - code/release.zip
+
+      # The following deployment steps will be executed for each pipeline run. To configure your steps and conditionally deploy see https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
+      - step:
+          name: "Deployment to Staging"
+          deployment: staging
+          trigger: manual
+          script:
+            - apk add openssh
+            - pipe: atlassian/sftp-deploy:0.5.7
+              variables:
+                USER: "ubuntu"
+                SERVER: "3.24.141.0"
+                REMOTE_PATH: "/home/ubuntu/"
+                LOCAL_PATH: "code/release.zip"
+            - pipe: atlassian/ssh-run:0.3.0
+              variables:
+                SSH_USER: "ubuntu"
+                SERVER: "3.24.141.0"
+                MODE: "script"
+                COMMAND: "bitbucket/deployment.sh"
+                ENV_VARS: >-
+                  TARGET_FOLDER=${TARGET_FOLDER}
+      - step:
+          name: "Deployment to Production"
+          deployment: production
+          trigger: manual
+          script:
+            - apk add openssh
+            - pipe: atlassian/sftp-deploy:0.5.7
+              variables:
+                USER: "ubuntu"
+                SERVER: "3.24.141.0"
+                REMOTE_PATH: "/home/ubuntu/"
+                LOCAL_PATH: "code/release.zip"
+            - pipe: atlassian/ssh-run:0.3.0
+              variables:
+                SSH_USER: "ubuntu"
+                SERVER: "3.24.141.0"
+                MODE: "script"
+                COMMAND: "bitbucket/deployment.sh"
+                ENV_VARS: >-
+                  TARGET_FOLDER=${TARGET_FOLDER}

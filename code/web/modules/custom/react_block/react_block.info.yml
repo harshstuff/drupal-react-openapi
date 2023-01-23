@@ -1,0 +1,6 @@
+name: react_block
+type: module
+description: Custom React Plugin for OpenAI API
+package: Custom
+core: 9.x
+core_version_requirement: ^8 || ^9

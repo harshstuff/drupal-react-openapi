@@ -1,0 +1,67 @@
+version: "3"
+
+networks:
+  LEMP:
+
+volumes:
+  db_data: {}
+
+services:
+  web:
+    image: nginx:latest
+    container_name: ${TAG}_nginx
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - ./code/web:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/logs:/var/log/nginx
+    depends_on:
+      - php
+    networks:
+      - LEMP
+
+  php:
+    build:
+      context: ./docker/php
+    container_name: ${TAG}_drupal
+    volumes:
+      - ./code:/opt/drupal/
+      - ./docker/php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+    restart: always
+    depends_on:
+      - mysql
+    networks:
+      - LEMP
+    expose:
+      - "25"
+
+  mysql:
+    image: bitnami/mysql:5.7
+    container_name: ${TAG}_mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - db_data:/bitnami/mysql/data
+    networks:
+      - LEMP
+  mail:
+    image: mailhog/mailhog
+    container_name: ${TAG}_mail
+    user: root
+    expose:
+      - 1025
+      - 8025
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - LEMP

@@ -1,0 +1,7 @@
+react_block.example:
+  path: '/scanlon-microsite2022/example'
+  defaults:
+    _title: 'Example'
+    _controller: '\Drupal\react_block\Controller\ReactBlockController::build'
+  requirements:
+    _permission: 'access content'

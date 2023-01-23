@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * @file
+ * Functions to support theming in the SASS Starterkit subtheme.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_system_theme_settings_alter() for settings form.
+ *
+ * Replace Barrio setting options with subtheme ones.
+ */
+function think_sass_bs5_form_system_theme_settings_alter(
+  &$form,
+  FormStateInterface $form_state
+) {
+  $form['components']['navbar']['bootstrap_barrio_navbar_top_background']['#options'] = array(
+    'bg-primary' => t('Primary'),
+    'bg-secondary' => t('Secondary'),
+    'bg-light' => t('Light'),
+    'bg-dark' => t('Dark'),
+    'bg-white' => t('White'),
+    'bg-transparent' => t('Transparent')
+  );
+
+  $form['components']['navbar']['bootstrap_barrio_navbar_background']['#options'] = array(
+    'bg-primary' => t('Primary'),
+    'bg-secondary' => t('Secondary'),
+    'bg-light' => t('Light'),
+    'bg-dark' => t('Dark'),
+    'bg-white' => t('White'),
+    'bg-transparent' => t('Transparent')
+  );
+}
+
+
+function think_sass_bs5_preprocess_image(&$variables)
+{
+  if ($variables['style_name'] == 'fluid_thumbnail') {
+    $variables['attributes']['class'][] = 'img-fluid';
+  }
+}
+
+
+/**
+ * Implements hook_preprocess_page_title().
+ */
+function think_sass_bs5_preprocess_page_title(&$variables)
+{
+  if (\Drupal::service('path.matcher')->isFrontPage()) {
+    $variables['title_attributes']['class'][] = 'visually-hidden';
+  } else {
+    $variables['title_attributes']['class'][] = 'display-2';
+  }
+}

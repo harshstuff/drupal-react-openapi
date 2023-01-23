@@ -1,0 +1,21 @@
+{
+    "folders": [
+        {
+            "name": "Project Root",
+            "path": "."
+        },
+        {
+            "name": "Drupal Root",
+            "path": "code"
+        },
+        {
+            "name": "Sites Folder",
+            "path": "../drupal9/code/web/sites"
+        },
+        {
+            "name": "Theme Folder",
+            "path": "code/web/themes/custom/think_sass_bs5"
+        }
+    ],
+    "settings": {}
+}
